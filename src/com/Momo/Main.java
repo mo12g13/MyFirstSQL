@@ -15,6 +15,7 @@ public class Main {
 
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
+        PreparedStatement psInsert;
 
         try {
 
@@ -43,9 +44,45 @@ public class Main {
             statement = conn.createStatement();
 
             //Create a table in the database, if it does not exist already
-         String sql = "CREATE TABLE if not exists CUBES(Cube_Solver varchar(50), Time_In_Seconds DOUBLE  )";
+         String sql = "CREATE TABLE if not exists CUBES(Cube_Solver VARCHAR(50), Time_In_Seconds DOUBLE  )";
          statement.executeUpdate(sql);
             System.out.println("");
+
+
+            System.out.println("Do you want to search any data? ");
+            String yes = input.nextLine();
+            String searchName =solverName();
+            String searchByName = "SELECT* FROM CUBES WHERE Cube_Solver = ?";
+            psInsert = conn.prepareCall(searchByName);
+            psInsert.setString(1, searchName);
+            rs =psInsert.executeQuery();
+
+            System.out.println("Result of Query");
+            int number = 0;
+            while (rs.next()){
+                number++;
+                String name = rs.getString("Cube_Solver");
+                double time_in_seconds = rs.getDouble("Time_In_Seconds");
+                System.out.println("\n");
+                System.out.println("Cube Solver: "+ name + "Time In Seconds: "+ time_in_seconds );
+
+                if(number ==0){
+                    System.out.println("no data was found");
+
+                }
+
+
+            }
+
+            System.out.println("Do you want to update data? ");
+            String nameUpdate = solverName();
+            double timeUpdate = getPositiveDoubleInput();
+            String updateTime_In_Seconds = "UPDATE CUBES SET Time_In_Seconds =? WHERE Cube_Solver = ?";
+
+            psInsert = conn.prepareStatement(updateTime_In_Seconds);
+            psInsert.setDouble(1, timeUpdate);
+            psInsert.setString(2, nameUpdate);
+            psInsert.executeUpdate();
 
 
 
@@ -68,25 +105,30 @@ public class Main {
 
             String nameOfSolver;
             double time_in_Seconds;
-            while(true){
-                nameOfSolver = solverName();
-                System.out.println(nameOfSolver);
-                time_in_Seconds = getPositiveDoubleInput();
-                System.out.println(time_in_Seconds);
-            String prepStatInsert = "INSERT INTO CUBES VALUES ( ? , ? )";
-            PreparedStatement psInsert = conn.prepareStatement(prepStatInsert);
-            psInsert.setString(1, nameOfSolver);
-            psInsert.setDouble(2, time_in_Seconds);
-            psInsert.executeUpdate();
 
-                System.out.println("Do you want to enter more data. Enter y for yes and n for no ");
-                String exit = input.nextLine();
-                if(exit.equalsIgnoreCase("y")){
-                    continue;
+            while(true){
+
+               System.out.println("Do you want to add a Cube Solver y/n?");
+                String solver = input.nextLine();
+                if(solver.equalsIgnoreCase("y")) {
+                    nameOfSolver = solverName();
+                    System.out.println(nameOfSolver);
+                    time_in_Seconds = getPositiveDoubleInput();
+                    System.out.println(time_in_Seconds);
+                    String prepStatInsert = "INSERT INTO CUBES VALUES ( ? , ? )";
+                    psInsert = conn.prepareStatement(prepStatInsert);
+                    psInsert.setString(1, nameOfSolver);
+                    psInsert.setDouble(2, time_in_Seconds);
+                    psInsert.executeUpdate();
+
+
+
+                }else {
+                  break;
                 }
-                if(exit.equalsIgnoreCase("n")){
-                    break;
-                }
+
+
+
 
            }
 
@@ -104,9 +146,30 @@ try{
                 String solver = rs.getString("Cube_Solver");
                 double time_in_seconds = rs.getDouble("Time_In_Seconds");
                 System.out.println("Cube solver = " + solver+ " Time in seconds = " + time_in_seconds);
+
             }
 
             /** End of new code here **/
+
+//    System.out.println("Do you want to search any data? ");
+//    String searchName =solverName();
+//    String searchByName = "SELECT* FROM CUBES WHERE Cube_Solver = ?";
+//    psInsert = conn.prepareCall(searchByName);
+//    psInsert.setString(1, searchName);
+//    rs =psInsert.executeQuery();
+//
+//    System.out.println("Result of Query");
+//    int number = 0;
+//    while (rs.next()){
+//        number++;
+//        String name = rs.getString(Cube_Solver);
+//        double time_in_seconds = rs.getDouble(Time_In_Seconds);
+//        System.out.println("\n");
+//        System.out.println("Cube Solver: "+ name+ "Time In Seconds: "+ );
+//
+//
+//    }
+
 
 
 
